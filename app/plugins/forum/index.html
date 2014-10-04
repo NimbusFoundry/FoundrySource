@@ -1,0 +1,341 @@
+<link href="forum/plugins/forum/forum.css" rel="stylesheet" />
+<link href="forum/plugins/forum/teststyle.css" rel="stylesheet" />
+<script src="forum/plugins/forum/url.js"></script>
+
+<div ng-controller="ForumController" ng-cloak>
+
+	<div class="dash-column-left" id="topic_column">
+
+		<div class="breadcrumb" style="position: relative;">
+			<form style="display:inline;position: absolute;right: 10em;left: 0.6em;" ng-submit="searchLoad()">
+				<input ng-model="keyword" type="text" class="search" placeholder="{{searchPlaceHolder}}" ng-focus="searchPlaceHolder='Type and press return'" ng-blur="searchPlaceHolder='Search'" style="width:100%">
+				<input type="submit" style="visibility: hidden; position:absolute;">
+			</form>
+			<!-- <div class="pull-right">
+				<span class="btn outline btn-file" > Add Topic </span>
+			</div> -->
+			<div class="pull-right compose-menu">
+		        <a class="dropdown-toggle post" href="" data-toggle="dropdown" style="padding-top: 12px; padding-bottom: 8px">
+		            <i class="icon icon-note"></i> <span>Compose</span> <span class="caret"></span>
+		        </a>
+		        <ul class="dropdown-menu actions" role="menu">
+		            <li><a class="link" href="" ng-click="add_link_shortcut()"><i class="icon icon-link"></i> Link</a></li>
+		            <li><a class="file" href="" ng-click="add_shortcut()"><i class="icon icon-file"></i> Post</a></li>
+		            <li class="btn-file"><a href="" class="file" ng-click="add_file_shortcut()"><i class="icon icon-upload"></i> File</a></li>
+		            <li ng-repeat="component in components"><a href="" class="file" ng-click="shortcut(component)()"><i class="icon {{component.icon}}"></i> {{component.showName}}</a></li>
+		            <!-- <i class="icon icon-upload"></i> Files</a><input type="file" fileread class="fileupload" en-model="upload_post"> -->
+		        </ul>
+		    </div>
+		</div>
+
+		<div class="topic_listing" ng-repeat="topic in topics" ng-click="change_display(feed,$index)" ng-class="{current_topic: $index==current_index}" style="position: relative;">
+			<i class="icon icon-bookmark" ng-show="topic.pinned" style="position:absolute;left: 0px;top:0px;color: #1fa086;"></i>
+			<img class="pic" ng-src='{{ get_user_pic(topic.userid) }}' />
+			<div class="middle">
+				<!-- <a href="{{ topic.link }}" target="_blank">--><span class="name">{{ topic.name }}</span><span class="timesago">{{ get_time_from_now(topic.created_at) }}</span>
+				<br />
+				<span class="detail">By {{ get_user_name(topic.userid) }}</span><span class="commenters">{{ get_topic_comment_count(topic) || ''}}</span>
+			</div>
+		</div>
+		<div class="topic_listing" style="text-align: center;" ng-hide="!is_there_more_posts()">
+			<a ng-click="load_next_page()" class="btn btn-primary">Load More</a>
+		</div>
+		<div class="topic_listing" style="text-align: center;" ng-hide="!is_there_more_search_posts()">
+			<a ng-click="load_next_search_page()" class="btn btn-primary">Load More</a>
+		</div>
+
+		<div class="update modal fade nimbus_form_modal large-modal">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" aria-hidden="true" ng-click="clear()">
+							&times;
+						</button>
+						<h4 class="modal-title">Edit Post</h4>
+					</div>
+					<div class="modal-body">
+						<model-form model-name="topic_edit_config" form-mode="form_mode" instance-name="displayed_topic"></model-form>
+
+						<!-- <model-form model-name="topicmodel" form-mode="form_mode" instance-name="topic_data"></model-form> -->
+					</div>
+				</div><!-- /.modal-content -->
+			</div><!-- /.modal-dialog -->
+		</div>
+		<div class="update_link modal fade nimbus_form_modal">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" aria-hidden="true" ng-click="clear()">
+							&times;
+						</button>
+						<h4 class="modal-title">Edit Link</h4>
+					</div>
+					<div class="modal-body">
+						<model-form model-name="link_config" form-mode="form_mode" instance-name="displayed_topic"></model-form>
+
+						<!-- <model-form model-name="topicmodel" form-mode="form_mode" instance-name="topic_data"></model-form> -->
+					</div>
+				</div><!-- /.modal-content -->
+			</div><!-- /.modal-dialog -->
+		</div>
+
+		<div class="update_file modal fade">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" aria-hidden="true" ng-click="clear()">
+							&times;
+						</button>
+						<h4 class="modal-title">Edit File</h4>
+					</div>
+					<div class="modal-body">
+						<model-form model-name="file_edit_config" form-mode="form_mode" instance-name="displayed_topic"></model-form>
+					</div>
+				</div><!-- /.modal-content -->
+			</div><!-- /.modal-dialog -->
+		</div>
+		
+
+		<div ng-repeat="component in components" class="{{component.view.updateModal.cssClass}} nimbus_form_modal modal fade">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" aria-hidden="true" ng-click="clear()">
+							&times;
+						</button>
+						<h4 class="modal-title">{{component.view.updateModal.title}}</h4>
+					</div>
+					<div class="modal-body">
+						<model-form model-name="{{component.name}}_config" form-mode="form_mode" instance-name="displayed_topic"></model-form>
+					</div>
+				</div><!-- /.modal-content -->
+			</div><!-- /.modal-dialog -->
+		</div>
+
+		<div class="form modal fade nimbus_form_modal large-modal">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" aria-hidden="true" ng-click="clear()">
+							&times;
+						</button>
+						<h4 class="modal-title">Add Post</h4>
+					</div>
+					<div class="modal-body">
+						<model-form model-name="topic_config" form-mode="form_mode" instance-name="topic_data"></model-form>
+					</div>
+				</div><!-- /.modal-content -->
+			</div><!-- /.modal-dialog -->
+		</div>
+
+		<div class="link_post nimbus_form_modal modal fade">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" aria-hidden="true" ng-click="clear()">
+							&times;
+						</button>
+						<h4 class="modal-title">Add Link</h4>
+					</div>
+					<div class="modal-body">
+						<model-form model-name="link_config" form-mode="form_mode" instance-name="topic_data"></model-form>
+					</div>
+				</div><!-- /.modal-content -->
+			</div><!-- /.modal-dialog -->
+		</div>
+
+		<!-- auto generate new component add modal view -->
+		<div ng-repeat="component in components" class="{{component.view.createModal.cssClass}} nimbus_form_modal modal fade">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" aria-hidden="true" ng-click="clear()">
+							&times;
+						</button>
+						<h4 class="modal-title">{{component.view.createModal.title}}</h4>
+					</div>
+					<div class="modal-body">
+						<model-form model-name="{{component.name}}_config" form-mode="form_mode" instance-name="topic_data"></model-form>
+					</div>
+				</div><!-- /.modal-content -->
+			</div><!-- /.modal-dialog -->
+		</div>
+		<div class="file_modal modal fade nimbus_form_modal">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" aria-hidden="true" ng-click="clear()">
+							&times;
+						</button>
+						<h4 class="modal-title">Add File</h4>
+					</div>
+					<div class="modal-body">
+						<model-form model-name="file_config" form-mode="form_mode" instance-name="topic_data"></model-form>
+					</div>
+				</div><!-- /.modal-content -->
+			</div><!-- /.modal-dialog -->
+		</div>
+	</div>
+	<div id="topic_view" ng-show="showing">
+		<header class="context">
+			<div class="container">
+				<div class="actions" ng-show="user_permission == 'Admin' || displayed_topic.userid == current_user.id">
+					
+					<span class="btn outline small" ng-show="!displayed_topic.pinned" ng-click="pin_post(displayed_topic)"><i class="icon icon-bookmark"></i> Pin</span>
+					<span class="btn outline small" ng-show="displayed_topic.pinned" ng-click="unpin_post(displayed_topic)"><i class="icon icon-bookmark"></i> Unpin</span>
+					<span class="btn outline small" ng-click="edit_shortcut(displayed_topic)"> Edit </span>
+					<span class="btn outline small" confirm on-confirm="delete_topic()"> Delete </span>
+
+				</div>
+				<div class="avatar"><img ng-src="{{get_user_pic(displayed_topic.userid)}}" src="">
+				</div>
+				<div class="meta">
+					<strong style="margin-right: 10px">{{get_user_name(displayed_topic.userid)}}</strong><br /><abbr class="date">{{ get_time_from_now(displayed_topic.created_at, true) }}</abbr>
+				</div>
+			</div>
+		</header>
+
+		<div class="content container">
+			<div class="link-container" ng-if="displayed_topic.rss">
+				<div class="embed">
+					<div class="padding">
+						<div class="meta">
+							<a href="{{ displayed_topic.link }}" target="_blank" rel="nofollow">
+							<div>
+								<h1>{{ displayed_topic.name }}</h1>
+							</div>
+							</a>
+							<span class="source"><img ng-Src="{{ get_link_favicon(displayed_topic.link) }}" class="favicon" width="16" height="16"> from <strong>{{ get_link_domain(displayed_topic.link) }} ›</strong> </span>
+						</div>
+						<div ng-if="displayed_topic.text" class="detail-text" subexternal>
+							<div bind-html-unsafe="displayed_topic.text"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div ng-if="displayed_topic.attachment">
+				<h2>{{displayed_topic.name}}</h2>
+				<div class="user_listing">
+                    <i class="file_thumb" style="background-image:url({{displayed_attachment.thumbnailLink || displayed_attachment.iconLink}});" ></i>
+                    <a href="{{displayed_attachment.webContentLink}}"><span class="name">{{displayed_attachment.title}}</span></a>
+                </div>
+			</div>
+			<div class="note-container" ng-hide="displayed_topic.rss || displayed_topic.attachment">
+				<h1>{{ displayed_topic.name }}</h1>
+				<div bind-html-unsafe="displayed_topic.text" subexternal class="post-container detail-text" sub-zoom></div>
+				<div ng-if="displayed_topic.rss">
+					<div rss-feed="displayed_topic.link"></div>
+				</div>
+			</div>
+
+			<div ng-repeat="component in components" ng-if="displayed_topic.type === component.topicModel">
+				<div ng-include src="'forum/plugins/forum/components/'+component.name+'/index.html'"></div>
+			</div>
+		</div>
+
+		<div class="edit container">
+			<form>
+				<input type="text" class="title" placeholder="Add title...">
+				<div>
+					<div class="group-wrap">
+						<select name="select" class="group">
+							<option value="default" selected="selected">Nimbusbase</option>
+						</select>
+					</div>
+					<span class="caret"></span>
+					<a class="btn btn-secondary btn-outline cancel">Cancel</a>
+					<input type="submit" value="Save" class="btn btn-outline save">
+				</div>
+			</form>
+		</div>
+
+		<div class="comments container">
+			<!-- add comment block -->
+			<div>
+				<div class="avatar"><img ng-src="{{get_current_user_pic()}}">
+				</div>
+				<form>
+					<span role="status" aria-live="polite" class="ui-helper-hidden-accessible"></span>						
+					<textarea placeholder="Write your response..." ng-model="new_comment" class="ui-autocomplete-input" id="comment_box" autocomplete="off"></textarea>
+
+					<div class="gif-select">
+						<input type="text" placeholder="Search for a GIF...">
+						<ul class="gifs"></ul>
+						<a href="" class="close">×</a>
+					</div>
+
+					<input type="submit" value="Send" ng-click="add_comment(displayed_topic.rss)" class="btn btn-outline" title="Send (Shift + Enter)" ng-class="{disabled: uploading_file}">
+					<ul class="comment-actions">
+						<li>
+							<a href="" class="add-image" title="Add Image or File (or drag&amp;drop to comment box)"><i class="icon icon-picture"></i></a>
+							<input type="file" fileread en-model="upload_comment" class="image comment-image-input" multiple="">
+						</li>
+						<li>
+							<span class="img-title">{{upload_comment.name}}</span>
+							<a href="" ng-show="upload_comment" ng-click="clear_input()"><i class="icon icon-remove"></i></a>
+						</li>
+					</ul>
+				</form>
+			</div>
+			<!-- comments list -->
+			<ul style="margin-top: 60px;">
+				<li ng-repeat="comment in comments">
+					<abbr class="date icon icon-reply" ng-click="reply_comment(comment)"></abbr>
+					<a href=""  ng-show="user_permission == 'Admin' || comment.userid == current_user.id" class="delete icon icon-remove" confirm on-confirm="delete_comment($index, comment)" title="Delete comment?" target="_blank"></a>
+					<div class="avatar"><img ng-src="{{get_user_pic(comment.userid)}}">
+					</div>
+					<div class="comment">
+						<h4>{{comment.name}} </h4>
+						<p></p>
+						<p bind-html-unsafe="comment.content" class="coment-c"></p>
+						<p ng-if="comment.attachment">
+							<img ng-src="{{get_attachment_url(comment.attachment)}}" alt="">
+						</p>
+						<p><span class="timesago" style="color:#ddd;">{{ get_time_from_now(comment.created_at, true) }} </span></p>
+						<div>
+							<ul ng-show="comment.replies">
+								<li ng-repeat="reply in comment.replies track by $index">
+									<div class="avatar"><img ng-src="{{get_user_pic(reply.userid)}}"></div>
+									<abbr class="date icon icon-reply" ng-click="reply_comment(comment, $index)"></abbr>
+									<i ng-show="user_permission == 'Admin' || reply.userid == current_user.id" class="delete pull-right icon icon-remove" confirm on-confirm="remove_reply($index, comment)"></i>
+									<div class="comment">
+										<h4>{{reply.name}}</h4>
+										<p bind-html-unsafe="reply.content" class="coment-c"></p>
+										<p ng-if="reply.attachment">
+											<img ng-src="{{get_attachment_url(reply.attachment)}}" alt="">
+										</p>
+										<p><span class="timesago" style="color:#ddd;">{{ get_time_from_now(reply.created_at, true) }} </span></p>
+									</div>
+								</li>
+							</ul>
+						</div>
+					</div>
+				</li>
+			</ul>
+			<!-- end of comment list -->
+		</div>
+	</div>
+</div>
+<script>
+	$('.post-container').delegate('.zoom-action-button','click',function(evt){
+        var url = $(this).attr('en-zoom')
+        show_pop_up(url);
+        console.log('url: ',url);
+
+        function show_pop_up(url) {
+          var html, modal;
+          html = '<div class="image-zoomed todo-image-zoomed">';
+          html += "<img src='" + url + "' />";
+          html += '<div class="backdrop"></div>';
+          html += '</div>';
+          modal = $(html);
+          modal.on('click', function(evt) {
+            return $(this).fadeOut(function() {
+              return $(this).remove();
+            });
+          });
+          return $('body').append(modal.fadeIn());
+        };
+		
+	});
+</script>

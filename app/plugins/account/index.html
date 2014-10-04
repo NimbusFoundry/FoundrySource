@@ -1,0 +1,115 @@
+<link href="forum/plugins/account/account.css" rel="stylesheet" />
+
+<div ng-controller="AccountController" class="account_pane">
+	<div class="breadcrumb" style="margin-bottom: 0px; border-bottom: 1px solid #ddd;">
+		<h1 ng-bind="breadcum">Account</h1>
+	    <div class="pull-right" style="font-size: 1.1em; font-weight: 500;">
+	    	<img style="height: 40px; border-radius: 50%; margin-right: 5px; float: left" ng-src="{{_current_global_user.pic }}" />
+	    	{{_current_global_user.email}} <br />
+	    	<span class="account_role">Workspace {{ current_user_role }}</span>
+	    </div>  
+	</div>
+
+	<div class="breadcrumb account_info">
+		<h1>There is {{ users }}/{{ usernumber }} users in your workspace.</h1>
+	</div>	 
+	
+	<div class="container-fluid" style="padding: 0px">
+		
+		<section class="price-3">
+        <div class="container">
+          <div class="plans">
+            <div class="plan">
+              <div class="title">
+                Free Plan
+              </div>
+              <div class="price">$0/month</div>
+              <div class="description">
+                <b>Unlimited</b> files
+                <br>
+                <b>Fewer than 10 </b> users              
+              </div>
+              <div ng-class="is_current_plan(0)">
+              	<a href="/pricing.html" class="buy_level_btn level1 btn down_button">Downgrade</a>
+              	<a href="" class="buy_level_btn level1 btn current_button" target="_blank">Current Plan</a>
+              	<a href="/pricing.html" class="buy_level_btn level1 btn up_button" target="_blank">Upgrade	</a>
+              </div>                
+              <!-- <a class="btn disabled" href="#">Your Current Plan</a> -->
+            </div>
+            <div class="plan plan-2">
+              <div class="title">
+                Business Plan
+              </div>
+              <div class="price">$10/month</div>
+              <div class="description">
+                <b>Unlimited</b> files
+                <br>
+                <b>10-25</b> users
+              </div>
+              <div ng-class="is_current_plan(1)">
+              	<a href="/pricing.html" class="buy_level_btn level1 btn down_button">Downgrade</a>
+              	<a href="" class="buy_level_btn level1 btn current_button" target="_blank">Current Plan</a>
+              	<a href="/pricing.html" class="buy_level_btn level1 btn up_button" target="_blank">Upgrade	</a>
+              </div>
+              <!-- <a class="btn btn-primary" href="#">Change to this Plan</a> -->
+            </div>
+            <div class="plan plan-3">
+              <div class="title">
+                foundry Plan
+              </div>
+              <div class="price">$25/month</div>
+              <div class="description">
+                <b>Unlimited</b> files
+                <br>
+                <b> 25-50</b> users
+              </div>
+              <div ng-class="is_current_plan(2)">
+              	<a href="/pricing.html" class="buy_level_btn level1 btn down_button">Downgrade</a>
+              	<a href="" class="buy_level_btn level1 btn current_button" target="_blank">Current Plan</a>
+              	<a href="/pricing.html" class="buy_level_btn level1 btn up_button" target="_blank">Upgrade	</a>
+              </div>
+              <!-- <a class="btn btn-primary" href="#">Change to this Plan</a> -->
+            </div>
+            <div class="plan">
+              <div class="title">
+                Ultimate Plan
+              </div>
+              <div class="price">$50/month</div>
+              <div class="description">
+                <b>Unlimited</b> files
+                <br>
+                <b>&gt; 50</b> users
+              </div>
+              <div ng-class="is_current_plan(3)">
+              	<a href="/pricing.html" class="buy_level_btn level1 btn down_button">Downgrade</a>
+              	<a href="" class="buy_level_btn level1 btn current_button">Current Plan</a>
+              	<a href="/pricing.html" class="buy_level_btn level1 btn up_button">Upgrade	</a>
+              </div>
+              <!-- <a class="btn btn-primary" href="#">Change to this Plan</a> -->
+            </div>
+          </div>
+        </div>
+        <!--/.container-->
+      </section>
+		
+	</div>
+	
+	<div class="breadcrumb" style="margin-bottom: 0px; border-bottom: 1px solid #ddd;">
+		<h1>Send me emails</h1>
+	    <div class="pull-right" style="font-size: 1.1em; font-weight: 500;">
+		
+			<div class="switch white">
+		
+					<input type="radio" name="switch" id="switch-off" value="true" ng-click="setting_email_change(true)" ng-checked="setting_email == true">
+					<input type="radio" name="switch" id="switch-on" value="false" ng-click="setting_email_change(false)" ng-checked="setting_email == false">
+		
+					<label for="switch-off">Off</label>
+					<label for="switch-on">On</label>
+		
+					<span class="toggle"></span>
+		
+			</div>
+		</div>
+	</div> 
+	
+</div>
